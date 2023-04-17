@@ -4,10 +4,18 @@ using PlasticChangelogTool.Utils;
 
 try
 {
-    // string branch = cli.GetCurrentBranch();
+    var opts = CommandLineOptions.ParseCommandLineArgs();
+    Log.enableDebug = opts.LogsDebug;
+    Log.enableVerbose = opts.LogsVerbose;
 
-    var cli = new PlasticCliApi(@".");
-    string branch = "/main/Milestone4";
+    var cli = new PlasticCliApi(opts.WorkingDir);
+
+    string? branch = opts.Branch;
+    if (branch == null)
+    {
+        cli.GetCurrentBranch();
+    }
+
     var stringComments = cli.GetCommentsFromBranch(branch);
     var parsedComments = new List<CommentTextParser.ParsedComment>(stringComments.Count);
 
@@ -24,10 +32,15 @@ try
     }
 
     string text = ChangelogParser.Parse(parsedComments);
-    Console.WriteLine($"'{text}'");
-
-    TextCopy.ClipboardService.SetText(text);
-    Log.Output("Changelog copied to clipboard.");
+    if (opts.UseClipboard)
+    {
+        TextCopy.ClipboardService.SetText(text);
+        Log.Output("Changelog copied to clipboard.");
+    }
+    else
+    {
+        Log.Output(text);
+    }
 }
 catch (Exception e)
 {

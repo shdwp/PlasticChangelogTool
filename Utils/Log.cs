@@ -8,14 +8,14 @@ namespace PlasticChangelogTool.Utils
         internal static void Error(string line)
         {
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine("[!] " + Sanitize(line));
+            Console.WriteLine("[!] " + line);
             Console.ResetColor();
         }
 
         internal static void Warning(string line)
         {
             Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine("[w] " + Sanitize(line));
+            Console.WriteLine("[w] " + line);
             Console.ResetColor();
         }
 
@@ -32,7 +32,7 @@ namespace PlasticChangelogTool.Utils
             }
 
             Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.WriteLine("[d] " + Sanitize(line));
+            Console.WriteLine("[d] " + line);
             Console.ResetColor();
         }
 
@@ -50,7 +50,7 @@ namespace PlasticChangelogTool.Utils
 
         private static string Sanitize(string input)
         {
-            return input.Replace("\n", "\\n");
+            return input.Replace("\n", "\\n").Replace("\r", "\\r");
         }
     }
 }

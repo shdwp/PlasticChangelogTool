@@ -11,32 +11,58 @@ namespace PlasticChangelogTool.Parsers
 
             var fuzzySectionTerms = new Dictionary<string, string>()
             {
-                {"releaselog", "ReleaseLog"},
-                {"devlog", "DevLog"},
+                { "releaselog", "ReleaseLog" },
+                { "devlog", "DevLog" },
+            };
+
+            var ignoredComments = new List<string>()
+            {
+                "Merged",
             };
 
             foreach (var comment in comments)
             {
-                foreach (var kv in comment.Logs.SelectMany(kv => kv.Value, (kv, v) => (kv.Key, v)))
+                if (!comment.Logs.Any())
                 {
-                    string section = kv.Key;
-                    string sectionQuery = kv.Key.ToLowerInvariant().Trim();
-                    foreach (var termKv in fuzzySectionTerms)
+                    var successfullyIgnored = false;
+                    
+                    foreach (var ignoredComment in ignoredComments)
                     {
-                        if (LevenshteinDistance.Calculate(termKv.Key, sectionQuery) < 3)
+                        if (LevenshteinDistance.Calculate(comment.Comment.ToLowerInvariant(), ignoredComment.ToLowerInvariant()) < 3)
                         {
-                            section = termKv.Value;
+                            successfullyIgnored = true;
                             break;
                         }
                     }
 
-                    if (logs.TryGetValue(section, out var sb))
+                    if (!successfullyIgnored)
                     {
-                        sb.Append("\n" + kv.v.Trim());
+                        Log.Output($"Omitting checkin with following comment: '{comment.Comment}'.");
                     }
-                    else
+                }
+                else
+                {
+                    foreach (var kv in comment.Logs.SelectMany(kv => kv.Value, (kv, v) => (kv.Key, v)))
                     {
-                        logs.Add(section, new StringBuilder(kv.v.Trim()));
+                        string section = kv.Key;
+                        string sectionQuery = kv.Key.ToLowerInvariant().Trim();
+                        foreach (var termKv in fuzzySectionTerms)
+                        {
+                            if (LevenshteinDistance.Calculate(termKv.Key, sectionQuery) < 3)
+                            {
+                                section = termKv.Value;
+                                break;
+                            }
+                        }
+
+                        if (logs.TryGetValue(section, out var sb))
+                        {
+                            sb.Append("\n" + kv.v.Trim());
+                        }
+                        else
+                        {
+                            logs.Add(section, new StringBuilder(kv.v.Trim()));
+                        }
                     }
                 }
             }

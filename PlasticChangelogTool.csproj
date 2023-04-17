@@ -8,6 +8,7 @@
  </PropertyGroup>
 
  <ItemGroup>
+   <PackageReference Include="Mono.Options" Version="6.12.0.148" />
    <PackageReference Include="TextCopy" Version="6.2.1" />
    <PackageReference Include="Tokenizer" Version="2.2.2" />
  </ItemGroup>

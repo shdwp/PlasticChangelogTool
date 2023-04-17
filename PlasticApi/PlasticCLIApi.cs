@@ -29,7 +29,7 @@ namespace PlasticChangelogTool.PlasticApi
             return branch.Trim();
         }
 
-        internal IReadOnlyList<string> GetCommentsFromBranch(string branch)
+        internal IReadOnlyList<string> GetCommentsFromBranch(string? branch)
         {
             var tokenizer = new Tokenizer();
             string comments = RunCommand($"find changeset \"where branch = '{branch}'\" --format=<<<{{comment}}");
@@ -76,7 +76,7 @@ namespace PlasticChangelogTool.PlasticApi
             string error = p.StandardError.ReadToEnd();
             if (error.Length > 0)
             {
-                throw new Exception($"{error} (command cm {args})");
+                throw new Exception($"{error} (command 'cm {args}')");
             }
 
             string output = p.StandardOutput.ReadToEnd();
