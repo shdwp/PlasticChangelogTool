@@ -29,10 +29,11 @@ namespace PlasticChangelogTool.PlasticApi
             return branch.Trim();
         }
 
-        internal IReadOnlyList<string> GetCommentsFromBranch(string? branch)
+        internal IReadOnlyList<string> GetCommentsFromBranch(string? branch, string appendix)
         {
             var tokenizer = new Tokenizer();
-            string comments = RunCommand($"find changeset \"where branch = '{branch}'\" --format=<<<{{comment}}");
+            string queryAppendix = appendix.Trim().Length > 0 ? $"and {appendix}" : "";
+            string comments = RunCommand($"find changeset \"where branch = '{branch}'\" --format=<<<{{comment}} {queryAppendix}");
             var parsedResult = tokenizer.Tokenize("<<<{cs*}\n\nTotal: {total}\n", comments);
             var result = new List<string>(48);
 

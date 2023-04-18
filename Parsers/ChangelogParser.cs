@@ -12,12 +12,16 @@ namespace PlasticChangelogTool.Parsers
             var fuzzySectionTerms = new Dictionary<string, string>()
             {
                 { "releaselog", "ReleaseLog" },
+                { "release", "ReleaseLog" },
                 { "devlog", "DevLog" },
+                { "debug", "DevLog" },
             };
 
             var ignoredComments = new List<string>()
             {
-                "Merged",
+                "Merged main",
+                "Merge from main",
+                "Main",
             };
 
             foreach (var comment in comments)
@@ -25,7 +29,7 @@ namespace PlasticChangelogTool.Parsers
                 if (!comment.Logs.Any())
                 {
                     var successfullyIgnored = false;
-                    
+
                     foreach (var ignoredComment in ignoredComments)
                     {
                         if (LevenshteinDistance.Calculate(comment.Comment.ToLowerInvariant(), ignoredComment.ToLowerInvariant()) < 3)

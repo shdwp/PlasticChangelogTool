@@ -1,6 +1,7 @@
 ﻿using PlasticChangelogTool.Parsers;
 using PlasticChangelogTool.PlasticApi;
 using PlasticChangelogTool.Utils;
+using System.Diagnostics;
 
 try
 {
@@ -8,15 +9,20 @@ try
     Log.enableDebug = opts.LogsDebug;
     Log.enableVerbose = opts.LogsVerbose;
 
+    if (opts.PrintHelp)
+    {
+        return;
+    }
+
     var cli = new PlasticCliApi(opts.WorkingDir);
 
     string? branch = opts.Branch;
     if (branch == null)
     {
-        cli.GetCurrentBranch();
+        branch = cli.GetCurrentBranch();
     }
 
-    var stringComments = cli.GetCommentsFromBranch(branch);
+    var stringComments = cli.GetCommentsFromBranch(branch, opts.CheckinQueryAppendix);
     var parsedComments = new List<CommentTextParser.ParsedComment>(stringComments.Count);
 
     foreach (string comment in stringComments)
@@ -32,10 +38,10 @@ try
     }
 
     string text = ChangelogParser.Parse(parsedComments);
-    if (opts.UseClipboard)
+    if (!opts.PrintToConsole)
     {
         TextCopy.ClipboardService.SetText(text);
-        Log.Output("Changelog copied to clipboard.");
+        Log.Output($"Processed total: {parsedComments.Count}, changelog copied to clipboard.");
     }
     else
     {
@@ -45,5 +51,9 @@ try
 catch (Exception e)
 {
     Log.Error(e.Message);
-    throw;
+
+    if (Debugger.IsAttached)
+    {
+        throw;
+    }
 }
